@@ -174,6 +174,7 @@ vim.keymap.set(
 )
 vim.keymap.set('n', '<leader>x', '<cmd>x<CR>')
 vim.keymap.set('n', '<leader>c', '<cmd>bd<CR>')
+vim.keymap.set('n', '<leader>d', '<cmd>NvimTreeToggle<CR>')
 
 -- fix for ocaml - disable extra keybinds from `/usr/share/nvim/runtime/ftplugin/ocaml.vim` clashing with mine
 vim.g['no_ocaml_maps'] = 1
@@ -634,7 +635,6 @@ require('lazy').setup {
         mypy = {},
         autopep8 = {},
         rust_analyzer = {},
-        ocamllsp = {},
 
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -931,6 +931,17 @@ require('lazy').setup {
       vim.keymap.set('v', '<S-Tab>', '<cmd>STSSelectChildNode<cr>', opts)
     end,
   },
+  {
+    'nvim-tree/nvim-tree.lua',
+    version = '*',
+    lazy = false,
+    dependencies = {
+      'nvim-tree/nvim-web-devicons',
+    },
+    config = function()
+      require('nvim-tree').setup {}
+    end,
+  },
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
   -- place them in the correct locations.
@@ -1001,5 +1012,9 @@ vim.api.nvim_create_autocmd({ 'BufWinEnter', 'FileType' }, {
 })
 
 vim.filetype.add { extension = { re = 'reason' } }
+
+-- the ocamllsp installed through Mason was too old
+require('lspconfig').ocamllsp.setup {}
+
 -- The line beneath this is called `modeline`. See `:help modeline`
 -- vim: ts=2 sts=2 sw=2 et
