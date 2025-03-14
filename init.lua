@@ -208,7 +208,7 @@ vim.keymap.set('n', '<leader>lD', vim.diagnostic.setloclist, { desc = 'Open diag
 --
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n><C-6>', { desc = 'Exit terminal mode' })
+vim.keymap.set('t', '<Esc><leader>', '<C-\\><C-n><C-6>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -259,7 +259,6 @@ vim.opt.rtp:prepend(lazypath)
 --    :Lazy update
 --
 -- NOTE: Here is where you install your plugins.
----@diagnostic disable-next-line: missing-fields
 require('lazy').setup {
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
@@ -635,7 +634,6 @@ require('lazy').setup {
       local servers = {
         clangd = {},
         mypy = {},
-        autopep8 = {},
         rust_analyzer = {},
 
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
@@ -657,7 +655,7 @@ require('lazy').setup {
                 callSnippet = 'Replace',
               },
               -- You can toggle below to ignore Lua_LS's noisy `missing-fields` warnings
-              -- diagnostics = { disable = { 'missing-fields' } },
+              diagnostics = { disable = { 'missing-fields' } },
             },
           },
         },
