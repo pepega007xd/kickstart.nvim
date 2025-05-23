@@ -177,6 +177,10 @@ vim.keymap.set('n', '<leader>x', '<cmd>x<CR>')
 vim.keymap.set('n', '<leader>c', '<cmd>bd<CR>')
 vim.keymap.set('n', '<leader>d', '<cmd>NvimTreeToggle<CR>')
 
+-- jump to next/previous quickfix list item
+vim.keymap.set('n', '<C-n>', ':cn<CR>')
+vim.keymap.set('n', '<C-p>', ':cp<CR>')
+
 -- fix for ocaml - disable extra keybinds from `/usr/share/nvim/runtime/ftplugin/ocaml.vim` clashing with mine
 vim.g['no_ocaml_maps'] = 1
 
@@ -436,15 +440,16 @@ require('lazy').setup {
 
       -- [[ Configure Telescope ]]
       -- See `:help telescope` and `:help telescope.setup()`
+      local actions = require 'telescope.actions'
       require('telescope').setup {
         -- You can put your default mappings / updates / etc. in here
         --  All the info you're looking for is in `:help telescope.setup()`
         --
-        -- defaults = {
-        --   mappings = {
-        --     i = { ['<c-enter>'] = 'to_fuzzy_refine' },
-        --   },
-        -- },
+        defaults = {
+          mappings = {
+            i = { ['<esc>'] = actions.close },
+          },
+        },
         -- pickers = {}
         extensions = {
           ['ui-select'] = {
@@ -635,6 +640,18 @@ require('lazy').setup {
         clangd = {},
         mypy = {},
         rust_analyzer = {},
+        tinymist = {
+          --
+          root_dir = function(filename)
+            local i = filename:reverse():find('/', 1, true)
+            return filename:sub(1, #filename - i)
+          end,
+          settings = {
+            formatterMode = 'typstyle',
+            exportPdf = 'onType',
+            semanticTokens = 'disable',
+          },
+        },
 
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -931,6 +948,22 @@ require('lazy').setup {
     config = function()
       require('nvim-tree').setup {}
     end,
+  },
+  {
+    'chomosuke/typst-preview.nvim',
+    lazy = false, -- or ft = 'typst'
+    version = '1.*',
+    opts = {
+      port = 12345,
+    }, -- lazy.nvim will implicitly calls `setup {}`
+  },
+  {
+    'jiaoshijie/undotree',
+    dependencies = 'nvim-lua/plenary.nvim',
+    config = true,
+    keys = { -- load the plugin only when using it's keybinding:
+      { '<leader>u', "<cmd>lua require('undotree').toggle()<cr>" },
+    },
   },
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
