@@ -213,6 +213,7 @@ vim.keymap.set('n', '<leader>lD', vim.diagnostic.setloclist, { desc = 'Open diag
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
 vim.keymap.set('t', '<Esc><leader>', '<C-\\><C-n><C-6>', { desc = 'Exit terminal mode' })
+vim.keymap.set('n', '<Esc><leader>', '<C-\\><C-n><C-6>', { desc = 'Exit terminal mode' })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -1037,7 +1038,7 @@ vim.api.nvim_create_autocmd({ 'BufWinEnter', 'FileType' }, {
 vim.filetype.add { extension = { re = 'reason' } }
 
 -- the ocamllsp installed through Mason was too old
-require('lspconfig').ocamllsp.setup {}
+vim.lsp.enable 'ocamllsp'
 
 -- use fish shell
 vim.o.shell = '/usr/bin/fish'
