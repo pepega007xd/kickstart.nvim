@@ -98,6 +98,12 @@ vim.g.have_nerd_font = true
 -- NOTE: You can change these options as you wish!
 --  For more options, you can see `:help option-list`
 
+-- Default indentation (vim-sleuth changes this later)
+vim.opt.tabstop = 4 -- a Tab displays as 4 spaces
+vim.opt.shiftwidth = 4 -- indentation is 4 spaces
+vim.opt.softtabstop = 4 -- Tab key inserts 4 spaces
+vim.opt.expandtab = true -- use spaces instead of literal tabs
+
 -- Make line numbers default
 vim.opt.number = true
 -- You can also add relative line numbers, to help with jumping.
@@ -163,13 +169,16 @@ vim.opt.hlsearch = true
 vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Better basic commands
+local autoformat_enabled = true
 vim.keymap.set(
   'n',
   '<leader>w',
   function()
     -- autoformat before save
-    require('conform').format { lsp_format = 'first' }
-    vim.api.nvim_command 'write'
+    if autoformat_enabled then
+      require('conform').format { lsp_format = 'first' }
+    end
+    vim.cmd 'write'
   end
   -- '<leader>F<CR><cmd>w<CR>'
 )
@@ -278,18 +287,6 @@ require('lazy').setup {
   --    require('Comment').setup({})
 
   -- "gc" to comment visual regions/lines
-  {
-    'numToStr/Comment.nvim',
-    opts = {
-      toggler = {
-        line = '<leader>/',
-      },
-      opleader = {
-        line = '<leader>/',
-      },
-    },
-  },
-
   -- Here is a more advanced example where we pass configuration
   -- options to `gitsigns.nvim`. This is equivalent to the following Lua:
   --    require('gitsigns').setup({ ... })
@@ -716,10 +713,11 @@ require('lazy').setup {
       {
         '<leader>F',
         function()
-          require('conform').format { async = true, lsp_fallback = true }
+          autoformat_enabled = not autoformat_enabled
+          print('Autoformat: ' .. (autoformat_enabled and 'ON' or 'OFF'))
         end,
         mode = '',
-        desc = '[F]ormat buffer',
+        desc = '[F]ormating toggle',
       },
     },
     opts = {
@@ -881,8 +879,9 @@ require('lazy').setup {
       --  Check out: https://github.com/echasnovski/mini.nvim
     end,
   },
-  { -- Highlight, edit, and navigate code
+  {
     'nvim-treesitter/nvim-treesitter',
+    lazy = false,
     build = ':TSUpdate',
     opts = {
       ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'vim', 'vimdoc', 'rust' },
@@ -897,21 +896,17 @@ require('lazy').setup {
       },
       indent = { enable = true, disable = { 'ruby' } },
     },
-    config = function(_, opts)
-      -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
-
-      -- Prefer git instead of curl in order to improve connectivity in some environments
-      require('nvim-treesitter.install').prefer_git = true
-      ---@diagnostic disable-next-line: missing-fields
-      require('nvim-treesitter.configs').setup(opts)
-
-      -- There are additional nvim-treesitter modules that you can use to interact
-      -- with nvim-treesitter. You should go explore a few and see what interests you:
-      --
-      --    - Incremental selection: Included, see `:help nvim-treesitter-incremental-selection-mod`
-      --    - Show your current context: https://github.com/nvim-treesitter/nvim-treesitter-context
-      --    - Treesitter + textobjects: https://github.com/nvim-treesitter/nvim-treesitter-textobjects
-    end,
+  },
+  {
+    'numToStr/Comment.nvim',
+    opts = {
+      toggler = {
+        line = '<leader>/',
+      },
+      opleader = {
+        line = '<leader>/',
+      },
+    },
   },
   {
     'windwp/nvim-autopairs',
@@ -924,18 +919,6 @@ require('lazy').setup {
       local cmp_autopairs = require 'nvim-autopairs.completion.cmp'
       local cmp = require 'cmp'
       cmp.event:on('confirm_done', cmp_autopairs.on_confirm_done())
-    end,
-  },
-  {
-    'ziontee113/syntax-tree-surfer',
-    config = function()
-      require('syntax-tree-surfer').setup()
-      local opts = { noremap = true, silent = true }
-
-      -- select based on syntax
-      vim.keymap.set('v', '<Tab>', '<cmd>STSSelectParentNode<cr>', opts)
-      vim.keymap.set('v', '<Tab>', '<cmd>STSSelectParentNode<cr>', opts)
-      vim.keymap.set('v', '<S-Tab>', '<cmd>STSSelectChildNode<cr>', opts)
     end,
   },
   {
@@ -964,6 +947,21 @@ require('lazy').setup {
     keys = { -- load the plugin only when using it's keybinding:
       { '<leader>u', "<cmd>lua require('undotree').toggle()<cr>" },
     },
+  },
+  {
+    'iamcco/markdown-preview.nvim',
+    cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
+    build = 'cd app && yarn install',
+    init = function()
+      vim.g.mkdp_filetypes = { 'markdown' }
+    end,
+    ft = { 'markdown' },
+  },
+  {
+    'elihunter173/dirbuf.nvim',
+  },
+  {
+    'pest-parser/pest.vim',
   },
   -- The following two comments only work if you have downloaded the kickstart repo, not just copy pasted the
   -- init.lua. If you want these files, they are in the repository, so you can just download them and
